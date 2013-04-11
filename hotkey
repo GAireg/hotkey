@@ -36,13 +36,13 @@ case $1 in
 		echo "powersave" > /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor		
 		echo "powersave" > /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor		
 		echo "powersave" > /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor
-
+		notify-send "powersave"
 	else
 		echo "ondemand" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor		
 		echo "ondemand" > /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor		
 		echo "ondemand" > /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor		
 		echo "ondemand" > /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor
-
+		notify-send "ondemand"
 
 	fi
 	;;
@@ -71,8 +71,10 @@ case $1 in
 	if [ $MUTE_STATE = no ]
 	then
 	        pactl set-sink-mute $SINK_NAME 1
+			notify-send "muted"
 	elif [ $MUTE_STATE = yes ]
 	then
 		pactl set-sink-mute $SINK_NAME 0
+		notify-send "unmuted"
 	fi
 esac
