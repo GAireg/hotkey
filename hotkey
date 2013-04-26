@@ -97,8 +97,7 @@ case $1 in
 			then
 				amixer -q sset 'Master' on
 				notify-send "unmuted"
-			#elif [[ $STATE == *[on]* ]]
-			else #then
+			else
 				amixer -q sset 'Master' off
 				notify-send "muted"
 			fi
