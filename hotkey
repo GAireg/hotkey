@@ -9,7 +9,7 @@ VOL_STEP="3276"
 PULSEAUDIO=true
 if $PULSEAUDIO;
 then
-	VOL_NOW=`pacmd dump | grep -P "^set-sink-volume $SINK_NAME\s+" | perl -p -i -e 's/.+\s(.x.+)$/$1/'`
+	VOL_NOW=`pacmd dump | grep -P "^set-sink-volume $SINK_NAME\s+" | perl -p -e 's/.+\s(.x.+)$/$1/'`
 fi
 
 case $1 in
@@ -83,7 +83,7 @@ case $1 in
 	mute)
 		if $PULSEAUDIO;
 		then
-			MUTE_STATE=`pacmd dump | grep -P "^set-sink-mute $SINK_NAME\s+" | perl -p -i -e 's/.+\s(yes|no)$/$1/'`
+			MUTE_STATE=`pacmd dump | grep -P "^set-sink-mute $SINK_NAME\s+" | perl -p -e 's/.+\s(yes|no)$/$1/'`
 			if [ $MUTE_STATE = no ]
 			then
 	        	pactl set-sink-mute $SINK_NAME 1
