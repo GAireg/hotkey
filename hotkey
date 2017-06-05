@@ -1,41 +1,39 @@
 #!/bin/bash
 
-CPUFREQ=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`
+CPUFREQ=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)
 
 SINK_NAME="alsa_output.pci-0000_00_1b.0.analog-stereo"
-VOL_MAX="65537"
 VOL_STEP="3276"
 
 PULSEAUDIO=true
 if $PULSEAUDIO;
 then
-	VOL_NOW=`pacmd dump | grep -P "^set-sink-volume $SINK_NAME\s+" | perl -p -e 's/.+\s(.x.+)$/$1/'`
+	VOL_NOW=$(pacmd dump | grep -P "^set-sink-volume $SINK_NAME\s+" | perl -p -e 's/.+\s(.x.+)$/$1/')
 fi
-
 case $1 in
 	bl+)
-	BACKLIGHT_NOW=`cat /sys/class/leds/samsung\:\:kbd_backlight/brightness`
-	BACKLIGHT_MAX=`cat /sys/class/leds/samsung\:\:kbd_backlight/max_brightness`
+	BACKLIGHT_NOW=$(cat /sys/class/leds/samsung::kbd_backlight/brightness)
+	BACKLIGHT_MAX=$(cat /sys/class/leds/samsung::kbd_backlight/max_brightness)
 	BLC=$((BACKLIGHT_NOW+1))
 	if [ $BLC -gt $((BACKLIGHT_MAX)) ]
 	then
 		BLC=$BACKLIGHT_MAX
 	fi
-	echo $BLC > /sys/class/leds/samsung\:\:kbd_backlight/brightness 
+	echo "$BLC" > /sys/class/leds/samsung::kbd_backlight/brightness 
 	;;
 
 	bl-)
-	BACKLIGHT_NOW=`cat /sys/class/leds/samsung\:\:kbd_backlight/brightness`
-	BACKLIGHT_MAX=`cat /sys/class/leds/samsung\:\:kbd_backlight/max_brightness`
+	BACKLIGHT_NOW=$(cat /sys/class/leds/samsung::kbd_backlight/brightness)
+	BACKLIGHT_MAX=$(cat /sys/class/leds/samsung::kbd_backlight/max_brightness)
 	BLC=$((BACKLIGHT_NOW-1))
 	if [ $BLC -lt $((0)) ]
 	then
 		BLC=0
 	fi
-	echo $BLC > /sys/class/leds/samsung\:\:kbd_backlight/brightness
+	echo "$BLC" > /sys/class/leds/samsung::kbd_backlight/brightness
 	;;
 	swgov)
-	if [ $CPUFREQ == "ondemand" ]
+	if [ "$CPUFREQ" == "ondemand" ]
 	then
 		echo "powersave" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor		
 		echo "powersave" > /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor		
@@ -60,7 +58,7 @@ case $1 in
 			then
 				VOL_NEW=$((0x10000))
 			fi
-			pactl set-sink-volume $SINK_NAME `printf "0x%X" $VOL_NEW`
+			pactl set-sink-volume "$SINK_NAME" "$(printf "0x%X" $VOL_NEW)"
 		else
 			amixer sset 'Master' 5%+
 		fi
@@ -70,11 +68,11 @@ case $1 in
 		if $PULSEAUDIO;
 		then
 			VOL_NEW=$((VOL_NOW - VOL_STEP))
-			if [ $(($VOL_NEW)) -lt $((0x00000)) ]
+			if [ $((VOL_NEW)) -lt $((0x00000)) ]
 			then
 				VOL_NEW=$((0x00000))
 			fi
-			pactl set-sink-volume $SINK_NAME `printf "0x%X" $VOL_NEW`
+			pactl set-sink-volume "$SINK_NAME" "$(printf "0x%X" $VOL_NEW)"
 		else
 			amixer sset 'Master' 5%-
 		fi
@@ -83,18 +81,18 @@ case $1 in
 	mute)
 		if $PULSEAUDIO;
 		then
-			MUTE_STATE=`pacmd dump | grep -P "^set-sink-mute $SINK_NAME\s+" | perl -p -e 's/.+\s(yes|no)$/$1/'`
-			if [ $MUTE_STATE = no ]
+				MUTE_STATE=$(pacmd dump | grep -P "^set-sink-mute $SINK_NAME\s+" | perl -p -e 's/.+\s(yes|no)$/$1/')
+			if [ "$MUTE_STATE" = no ]
 			then
 	        	pactl set-sink-mute $SINK_NAME 1
 				notify-send "muted"
-			elif [ $MUTE_STATE = yes ]
+			elif [ "$MUTE_STATE" = yes ]
 			then
 				pactl set-sink-mute $SINK_NAME 0
 				notify-send "unmuted"
 			fi
 		else
-			STATE=`amixer sget 'Master'`
+			STATE=$(amixer sget 'Master')
 			if [[ $STATE == *\[off\]* ]]
 			then
 				amixer -q sset 'Master' on
