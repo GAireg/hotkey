@@ -6,7 +6,7 @@ SINK_NAME="alsa_output.pci-0000_00_1b.0.analog-stereo"
 VOL_STEP="3276"
 
 PULSEAUDIO=true
-if $PULSEAUDIO;
+if [ $PULSEAUDIO ] && [ "$EUID" -ne "0" ];
 then
 	VOL_NOW=$(pacmd dump | grep -P "^set-sink-volume $SINK_NAME\s+" | perl -p -e 's/.+\s(.x.+)$/$1/')
 fi
