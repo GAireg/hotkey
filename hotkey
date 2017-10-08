@@ -102,4 +102,29 @@ case $1 in
 				notify-send "muted"
 			fi
 		fi
+	;;
+
+	profile)
+		PROFILE_FILE="/sys/devices/platform/samsung/performance_level"
+		if [ ! -e "$PROFILE_FILE" ]
+		then
+			exit 0
+		fi
+		if [ $UID -ne 0 ]
+		then
+			notify-send "hotkey profile" "must be calld as root"
+			exit -1
+		fi
+
+		STATE=$(cat "$PROFILE_FILE")
+		if [ x"$STATE" == "xnormal" ]
+		then
+			STATE="silent"
+		elif [ x"$STATE" == "xsilent" ]
+		then
+			STATE="normal"
+		fi
+		notify-send "new performance profile" "$STATE"
+		echo "$STATE" > "$PROFILE_FILE"
+	;;
 esac
